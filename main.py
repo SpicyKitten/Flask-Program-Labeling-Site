@@ -21,7 +21,7 @@ def home():
     return redirect(url_for('partition', vul_idx=0, part_idx=0))
     # return render_template('index.html', form=form)
 
-@app.route('/partition/<int:part_idx>/vulnerability/<int:vul_idx>', methods=['GET'])
+@app.route('/partition/<int:part_idx>/sample/<int:vul_idx>', methods=['GET'])
 def partition(vul_idx=None, part_idx=None):
     folder_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'], "data_partitions")
     if not os.path.exists(folder_path):
@@ -40,37 +40,33 @@ def partition(vul_idx=None, part_idx=None):
         return make_response(f"partition path {partition_path} does not exist", status.HTTP_404_NOT_FOUND)
     if not os.path.isdir(partition_path):
         return make_response(f"partition path {partition_path} is not a folder", status.HTTP_404_NOT_FOUND)
-    vulnerabilities = []
+    samples = []
     for path in os.scandir(partition_path):
         if path.is_dir() and os.listdir(path):
-            vulnerabilities.append(path)
-    if vul_idx < 0 or vul_idx >= len(vulnerabilities):
-        return make_response(f"vulnerability index {vul_idx} out of bounds", status.HTTP_404_NOT_FOUND)
-    vulnerability_path = vulnerabilities[vul_idx]
-    if not os.path.exists(vulnerability_path):
-        return make_response(f"vulnerability path {vulnerability_path} does not exist", status.HTTP_404_NOT_FOUND)
-    if not os.path.isdir(vulnerability_path):
-        return make_response(f"vulnerability path {vulnerability_path} is not a folder", status.HTTP_404_NOT_FOUND)
-    vulnerability_name = vulnerability_path.name + "_nonvul.c"
+            samples.append(path)
+    if vul_idx < 0 or vul_idx >= len(samples):
+        return make_response(f"sample index {vul_idx} out of bounds", status.HTTP_404_NOT_FOUND)
+    sample_path = samples[vul_idx]
+    if not os.path.exists(sample_path):
+        return make_response(f"Sample path {sample_path} does not exist", status.HTTP_404_NOT_FOUND)
+    if not os.path.isdir(sample_path):
+        return make_response(f"Sample path {sample_path} is not a folder", status.HTTP_404_NOT_FOUND)
+    sample_name = sample_path.name + "_nonvul.c"
     file_path = None
     names = []
-    for path in os.scandir(vulnerability_path):
+    for path in os.scandir(sample_path):
         if not path.is_dir():
             names.append(path.name)
-        if not path.is_dir() and path.name == (vulnerability_name):
+        if not path.is_dir() and path.name == (sample_name):
             if file_path is not None:
                 file_path = None
                 break
             file_path = path
     if file_path is None:
-        return make_response(f"no unique vulnerability file {names} found", status.HTTP_404_NOT_FOUND)
+        return make_response(f"no unique sample file {names} found", status.HTTP_404_NOT_FOUND)
     with open(file_path, 'r') as file:
         file_content = file.read()
-    return render_template('label.html', vulnerability_text=file_content)
-    return file_content
-    return f"{partition_path.name}/{vulnerability_path.name}/{file_path.name} partitions in path {folder_path}"
-    return (os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'],secure_filename(f"{part_idx}, {vul_idx}")))
-    return f'Vulnerability {vul_idx} in partition {part_idx} not found'
+    return render_template('label.html', sample_text=file_content)
 
 if __name__ == '__main__':
     app.run(debug=True)
