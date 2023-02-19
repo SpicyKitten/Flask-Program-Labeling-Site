@@ -24,9 +24,11 @@
     <div class="container">
       <h1 class="header">Vulnerability injection tool</h1>
       <div class="col-12">
+        <div class="row">
+            {{path}}
+        </div>
         <form action="{{ url_for('submit', part_idx=curr_partition, sample_idx=curr_sample) }}" method="POST">
         <div class="row">
-          
             <div class="col-6">
               <div class="row">Original code</div>
               <div class="row">

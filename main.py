@@ -176,7 +176,7 @@ def partition(part_idx=None, sample_idx=None):
     next_sample = sample_idx + 1
     return render_template('label.html', sample_text=file_content, prev_partition=prev_partition,
         next_partition=next_partition, prev_sample=prev_sample, next_sample=next_sample,
-        curr_partition=part_idx, curr_sample=sample_idx, enabled=enabled)
+        curr_partition=part_idx, curr_sample=sample_idx, enabled=enabled, path=file_path.path)
 
 if __name__ == '__main__':
     app.run(debug=True)
