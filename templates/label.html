@@ -19,86 +19,121 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
   </head>
+  {% extends "layout.html" %} {% block body %}
   <body>
     <div class="container">
       <h1 class="header">Vulnerability injection tool</h1>
       <div class="col-12">
+        <form action="{{ url_for('submit', part_idx=curr_partition, sample_idx=curr_sample) }}" method="POST">
         <div class="row">
-          <div class="col-6">
-            <div class="row">Original code</div>
-            <div class="row">
-              <textarea
-                name="frame1"
-                class="form-control"
-                rows="20"
-                id="frame1"
-                readonly="true"
-              >
-{{sample_text}}</textarea
-              >
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="row">Inject vulnerability here:</div>
-            <div class="row">
-              <textarea
-                name="frame2"
-                class="form-control"
-                rows="20"
-                id="frame2"
-              >
-{{sample_text}}</textarea
-              >
-            </div>
-            <div class="row">
-              <div class="col-auto">
-                <div class="btn-group-vertical">
-                  <button type="button" class="btn btn-primary m-1">
-                    <i class="fa fa-angle-left fa-fw"></i> Prev. sample
-                  </button>
-                  <button type="button" class="btn btn-primary mx-1">
-                    <i class="fa fa-angle-double-left fa-fw"></i> Prev.
-                    partition
-                  </button>
-                </div>
+          
+            <div class="col-6">
+              <div class="row">Original code</div>
+              <div class="row">
+                <textarea
+                  class="form-control"
+                  style="white-space: pre-line"
+                  rows="20"
+                  id="frame1"
+                  readonly="true"
+                >
+    {{sample_text}}</textarea
+                >
               </div>
-              <div class="col-auto">
-                <form>
-                  <div class="row">
-                    <select
-                      class="form-select mx-1 mb-1 mt-3"
-                      aria-label="Vulnerability type:"
-                      required
+            </div>
+            <div class="col-6">
+              <div class="row">Inject vulnerability here:</div>
+              <div class="row">
+                <textarea
+                  name="vuln_program"
+                  class="form-control"
+                  style="white-space: pre-line"
+                  rows="20"
+                  id="frame2"
+                  {%if
+                  not
+                  enabled%}
+                  readonly="true"
+                  {%endif%}
+                >
+    {{sample_text}}</textarea
+                >
+              </div>
+              <div class="row">
+                <div class="col-auto">
+                  <div class="btn-group-vertical">
+                    <a
+                      href="{{ url_for('partition', part_idx=curr_partition, sample_idx=prev_sample) }}"
+                      class="btn btn-primary m-1"
                     >
-                      <option selected value="">Vulnerability type:</option>
-                      <option value="CWE-190">Integer overflow</option>
-                      <option value="CWE-121">Stack-based overflow</option>
-                      <option value="CWE-122">Heap-based overflow</option>
-                      <option value="CWE-415">Double free</option>
-                      <option value="CWE-416">Use after free</option>
-                    </select>
+                      <i class="fa fa-angle-left fa-fw"></i> Prev. sample
+                    </a>
+                    <a
+                      href="{{ url_for('partition', part_idx=prev_partition, sample_idx=curr_sample) }}"
+                      class="btn btn-info mx-1"
+                    >
+                      <i class="fa fa-angle-double-left fa-fw"></i> Prev.
+                      partition
+                    </a>
                   </div>
-                  <div class="row">
-                    <button type="submit button" class="btn btn-success mx-1">
-                      Submit
-                    </button>
+                </div>
+                <div class="col-auto">
+                  {% if enabled %}
+                  <fieldset>
+                    {% else %}
+                    <fieldset disabled>
+                      {% endif %}
+                      <div class="row">
+                        <select
+                          name="vuln_type"
+                          class="form-select mx-1 mb-1 mt-3"
+                          aria-label="Vulnerability type:"
+                          required
+                        >
+                          <option selected value="">Vulnerability type:</option>
+                          <option value="CWE-190">Integer overflow</option>
+                          <option value="CWE-121">Stack-based overflow</option>
+                          <option value="CWE-122">Heap-based overflow</option>
+                          <option value="CWE-415">Double free</option>
+                          <option value="CWE-416">Use after free</option>
+                        </select>
+                      </div>
+                      <div class="row">
+                        <button
+                          type="submit button"
+                          class="btn btn-success mx-1"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                      {% if enabled %}
+                    </fieldset>
+                    {% else %}
+                  </fieldset>
+                  {% endif %}
+                </div>
+                <div class="col-auto">
+                  <div class="btn-group-vertical">
+                    <a
+                      href="{{ url_for('partition', part_idx=curr_partition, sample_idx=next_sample) }}"
+                      class="btn btn-primary m-1"
+                    >
+                      Next sample <i class="fa fa-angle-right fa-fw"></i>
+                    </a>
+                    <a
+                      href="{{ url_for('partition', part_idx=next_partition, sample_idx=curr_sample) }}"
+                      class="btn btn-info mx-1"
+                    >
+                      Next partition
+                      <i class="fa fa-angle-double-right fa-fw"></i>
+                    </a>
                   </div>
-                </form>
-              </div>
-              <div class="col-auto">
-                <div class="btn-group-vertical">
-                  <button type="button" class="btn btn-primary m-1">
-                    Next sample <i class="fa fa-angle-right fa-fw"></i>
-                  </button>
-                  <button type="button" class="btn btn-primary mx-1">
-                    Next partition
-                    <i class="fa fa-angle-double-right fa-fw"></i>
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
+          
         </div>
+    </form>
       </div>
     </div>
     <script>
@@ -127,4 +162,5 @@
       crossorigin="anonymous"
     ></script>
   </body>
+  {% endblock %}
 </html>
