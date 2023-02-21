@@ -98,18 +98,29 @@ def submit(part_idx=None,sample_idx=None):
         return redirect(redirect_url())
     injection_count = 0
     for path in os.scandir(vul_folder_path):
-        if not path.is_dir() and path.name.startswith('vul_'):
+        if not path.is_dir() and '_vul_' in path.name:
             injection_count += 1
-    injection_path = os.path.join(vul_folder_path, f"vul_{injection_count}.c")
+    vuln_type = request.form.get('vuln_type')
+    indication_path = os.path.join(vul_folder_path, f"no_vul_injectable.txt")
+    injection_path = os.path.join(vul_folder_path, f"{vuln_type}_vul_{injection_count}.c")
     if os.path.exists(injection_path):
         flash(f"injection path {injection_path} already exists", category='warning')
         return redirect(redirect_url())
-    with open(injection_path, 'w') as file:
-        vuln_type = request.form.get('vuln_type')
-        vuln_program = request.form.get('vuln_program')
-        print(f'{vuln_type}', file=file)
-        print(f'{vuln_program}', file=file)
-    flash(f'submitted vulnerable program to {vul_folder_path}', category='success')
+    try:
+        if vuln_type == 'None':
+            with open(indication_path, 'w') as file:
+                print('No vulnerability found', file=file, end='')
+                flash(f'recorded "No vulnerability" for sample', category='success')
+        else:
+            with open(injection_path, 'w') as file:
+                print(f'{vuln_type}', file=file)
+                vuln_program = request.form.get('vuln_program')
+                print(f"{vuln_program}", file=file)
+                flash(f'submitted vulnerable program to {vul_folder_path}', category='success')
+    except FileNotFoundError:
+        flash(f'file {injection_path} not found', category='warning')
+        flash(f'directory {vul_folder_path} exists: {os.path.exists(vul_folder_path)}', category='info')
+        return redirect(redirect_url())
     return redirect(redirect_url())
 
 @app.route('/partition/<int(signed=True):part_idx>/sample/<int(signed=True):sample_idx>', methods=['GET'])
